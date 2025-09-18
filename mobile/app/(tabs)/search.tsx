@@ -89,6 +89,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import axios from "axios";
 import { useUser } from "@clerk/clerk-expo";
+import { getBaseUrl } from "@/utils/apiBaseUrl";
 
 const SearchScreen = () => {
   const TRENDING_TOPICS = [
@@ -102,6 +103,9 @@ const SearchScreen = () => {
   const [input, setInput] = useState("");
   const [results, setResults] = useState([]);
 
+  const API_BASE_URL = getBaseUrl();
+  console.log(API_BASE_URL);
+
   const fetchUsers = async (query) => {
     // setResults([]);
     if (!query) {
@@ -110,9 +114,10 @@ const SearchScreen = () => {
     }
 
     try {
-      const res = await axios.get(
-        `https://x-clone-woad.vercel.app/api/user/search?q=${query}`
-      );
+      const res = await axios.get(`${API_BASE_URL}/user/search?q=${query}`);
+      // const res = await axios.get(
+      //   `https://social-media-zeta-sandy.vercel.app/api/user/search?q=${query}`
+      // );
       // const res = await axios.get(
       //   `http://localhost:3001/api/user/search?q=${query}`
       // );

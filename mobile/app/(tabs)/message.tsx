@@ -239,6 +239,7 @@ const MessageScreen = () => {
                   value={newMessage}
                   onChangeText={setNewMessage}
                   multiline
+                  numberOfLines={2}
                 />
               </View>
               <TouchableOpacity
