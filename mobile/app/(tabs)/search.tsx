@@ -103,8 +103,7 @@ const SearchScreen = () => {
   const [input, setInput] = useState("");
   const [results, setResults] = useState([]);
 
-  const API_BASE_URL = getBaseUrl();
-  console.log(API_BASE_URL);
+  // const API_BASE_URL = getBaseUrl();
 
   const fetchUsers = async (query) => {
     // setResults([]);
@@ -114,16 +113,16 @@ const SearchScreen = () => {
     }
 
     try {
-      const res = await axios.get(`${API_BASE_URL}/user/search?q=${query}`);
-      // const res = await axios.get(
-      //   `https://social-media-zeta-sandy.vercel.app/api/user/search?q=${query}`
-      // );
+      // const res = await axios.get(`${API_BASE_URL}/user/search?q=${query}`);
+      const res = await axios.get(
+        `https://social-media-zeta-sandy.vercel.app/api/user/search?q=${query}`
+      );
       // const res = await axios.get(
       //   `http://localhost:3001/api/user/search?q=${query}`
       // );
       setResults(res.data.users);
     } catch (err) {
-      console.log("Search error:", err);
+      // console.log("Search error:", err);
       // console.log("Search error:", JSON.stringify(err, null, 2));
     }
   };
