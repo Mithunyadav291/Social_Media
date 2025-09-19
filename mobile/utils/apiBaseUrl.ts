@@ -2,7 +2,7 @@
 // for install  * as Device ==> npx expo install expo-device
 
 
-import axios from "axios";
+
 import {Platform} from 'react-native'
 import * as Device from 'expo-device'
 import Constants from 'expo-constants'

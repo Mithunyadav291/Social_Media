@@ -31,16 +31,25 @@ const PostComposer = () => {
           source={{ uri: user?.imageUrl }}
           className="w-12 h-12 rounded-full mr-3"
         />
-        <View className="flex-1">
+        <View className="flex-1 justify-center">
           <TextInput
-            className="text-gray-900 text-lg"
+            className="text-gray-900 text-lg outline-none"
             placeholder="What's happening?"
             placeholderTextColor="#657786"
             multiline
+            // numberOfLines={1}
             value={content}
             onChangeText={setContent}
             maxLength={280}
           />
+          {content.length > 0 && (
+            <TouchableOpacity
+              className="absolute top-2 right-2 w-8 h-8 bg-black bg-opacity-60 rounded-full items-center justify-center"
+              onPress={() => setContent("")}
+            >
+              <Feather name="x" size={16} color="white" />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
@@ -86,7 +95,7 @@ const PostComposer = () => {
               content.trim() || selectedImage ? "bg-blue-500" : "bg-gray-300"
             }`}
             onPress={createPost}
-            disabled={isCreating || !(content.trim() || selectedImage)}
+            disabled={isCrea ting || !(content.trim() || selectedImage)}
           >
             {isCreating ? (
               <ActivityIndicator size="small" color="white" />

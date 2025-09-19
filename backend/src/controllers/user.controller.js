@@ -66,9 +66,10 @@ export const followUser = asyncHandler(async (req, res) => {
   const { userId } = getAuth(req);
   const { targetUserId } = req.params; // targetUserId is the object id of mongoose(_id)
 
-  if (userId === targetUserId)
+  if (userId === targetUserId) {
     //but here userId is clerkId not _id of mongoose . so we must get its mongoose object _id
-    return res.status(400).json({ error: "You cannot follow yourself" });
+     return res.status(400).json({ error: "You cannot follow yourself" });
+  }
   const currentUser = await User.findOne({ clerkId: userId });
   const targetUser = await User.findById(targetUserId);
   // const targetUser=await User.findOne({clerkId:targetUserId})
