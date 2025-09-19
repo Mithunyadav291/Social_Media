@@ -14,11 +14,33 @@ export const usePosts=()=>{
     }=useQuery({
      queryKey:["posts"],
         queryFn:()=>postApi.getPosts(api),
-        select:(response)=>response.data.user,
+        select:(response)=>response.data.posts,
     })
 
     const likePostMutation=useMutation({
         mutationFn:(postId:string)=>postApi.likePost(api,postId),
         onSuccess:()=>queryClient.invalidateQueries({queryKey:['posts']})
     })
+    const deletePostMutation=useMutation({
+        mutationFn:(postId:string)=>postApi.deletePost(api,postId),
+        onSuccess:()=>{
+            queryClient.invalidateQueries({queryKey:['posts']})
+            queryClient.invalidateQueries({queryKey:['UserPosts']})
+        }
+    })
+
+    const checkIsLiked=(postLikes:string[],currentUser:any)=>{
+        const isLiked=currentUser && postLikes.includes(currentUser._id);
+        return isLiked;
+    }
+    
+    return {
+        posts:postsData || [],
+        isLoading,
+        error,
+        refetch,
+        toggleLike:(postId:string)=>likePostMutation.mutate(postId),
+        deletePost:(postId:string)=>deletePostMutation.mutate(postId),
+        checkIsLiked,
+    }
 }

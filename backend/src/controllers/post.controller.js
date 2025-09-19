@@ -9,7 +9,7 @@ import Comment from "../models/comment.model.js";
 export const getPosts = asyncHandler(async (req, res) => {
   const posts = await Post.find()
     .sort({ createdAt: -1 })
-    .populate("user", "username firstName lastName profilePicture")
+    .populate("user", "username firstname lastname profilePicture")
     .populate({
       path: "comments",
       populate: {

@@ -95,7 +95,7 @@ const PostComposer = () => {
               content.trim() || selectedImage ? "bg-blue-500" : "bg-gray-300"
             }`}
             onPress={createPost}
-            disabled={isCrea ting || !(content.trim() || selectedImage)}
+            disabled={isCreating || !(content.trim() || selectedImage)}
           >
             {isCreating ? (
               <ActivityIndicator size="small" color="white" />
