@@ -14,7 +14,7 @@ export const getPosts = asyncHandler(async (req, res) => {
       path: "comments",
       populate: {
         path: "user",
-        select: "username firstName lastName profilePicture",
+        select: "username firstname lastname profilePicture",
       },
     });
 
@@ -25,12 +25,12 @@ export const getPost = asyncHandler(async (req, res) => {
 
   const post = await Post.findById(postId)
     .sort({ createdAt: -1 })
-    .populate("user", "username firstName lastName profilePicture")
+    .populate("user", "username firstname lastname profilePicture")
     .populate({
       path: "comments",
       populate: {
         path: "user",
-        select: "username firstName lastName profilePicture",
+        select: "username firstname lastname profilePicture",
       },
     });
   if (!post) return res.status(404).json({ error: "Post not found" });
@@ -45,12 +45,12 @@ export const getUserPosts = asyncHandler(async (req, res) => {
 
   const posts = await Post.find({ user: user._id })
     .sort({ createdAt: -1 })
-    .populate("user", "username firstName lastName profilePicture")
+    .populate("user", "username firstname lastname profilePicture")
     .populate({
       path: "comments",
       populate: {
         path: "user",
-        select: "username firstName lastName profilePicture",
+        select: "username firstname lastname profilePicture",
       },
     });
 
@@ -61,6 +61,8 @@ export const createPost = asyncHandler(async (req, res) => {
   const { userId } = getAuth(req);
   const { content } = req.body;
   const imageFile = req.file;
+  console.log("contennt:", content);
+  console.log("imageUrl:", imageFile);
 
   if (!content && !imageFile) {
     return res

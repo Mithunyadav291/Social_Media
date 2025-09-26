@@ -4,21 +4,22 @@ import { useState } from "react";
 import { Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
-export const useCreatPost = () => {
+export const useSendMessage = () => {
   const [content, setContent] = useState("");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const api = useApiClient();
   const queryClient = useQueryClient();
 
-  const createPostMutation = useMutation({
-    mutationFn: async (postData: { content: string; imageUri?: string }) => {
+  const sendMessageMutation = useMutation({
+    mutationFn: async ({messageData,targetUserId}:{messageData:{content:string; imageUri?:string};targetUserId:string}) => {
       const formData = new FormData();
+      
+     
+      if (messageData.content) formData.append("content", messageData.content);
 
-      if (postData.content) formData.append("content", postData.content);
-
-      if (postData.imageUri) {
-        const uriParts = postData.imageUri.split(".");
+      if (messageData.imageUri) {
+        const uriParts = messageData.imageUri.split(".");
         const fileType = uriParts[uriParts.length - 1].toLowerCase();
 
         const mimeTypeMap: Record<string, string> = {
@@ -29,26 +30,28 @@ export const useCreatPost = () => {
         const mimeType = mimeTypeMap[fileType] || "image/jpeg";
 
         formData.append("image", {
-          uri: postData.imageUri,
+          uri: messageData.imageUri,
           name: `image.${fileType}`,
           type: mimeType,
         } as any);
-      //  console.log({formData})
+        
        
       }
-
-       return api.post("/posts", formData, {
+       
+       
+       return api.post(`message/send/${targetUserId}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
     },
     onSuccess: () => {
       setContent("");
       setSelectedImage(null);
-      queryClient.invalidateQueries({ queryKey: ["posts"] });
-      Alert.alert("Success", "Post created successfully!");
+       queryClient.invalidateQueries({ queryKey: ["messages",targetUserId] });
+      queryClient.invalidateQueries({ queryKey: ["chatUsers"] });
+      
     },
     onError: () => {
-      Alert.alert("Error", "Failed to create post. Please try again.");
+      // Alert.alert("Error", "Failed to send message. Please try again.");
     },
   });
 
@@ -82,32 +85,33 @@ export const useCreatPost = () => {
     if (!result.canceled) setSelectedImage(result.assets[0].uri);
   };
 
-  const createPost = () => {
+  const sendMessage = (targetUserId: string) => {
     if (!content.trim() && !selectedImage) {
       Alert.alert(
-        "Empty Post",
-        "Please write something or add an image before posting!"
+        "Empty Message",
+        "Please write something or add an image before messaging!"
       );
       return;
     }
   
-    const postData: { content: string; imageUri?: string } = {
+    const messageData: { content: string; imageUri?: string } = {
       content: content.trim(),
     };
 
-    if (selectedImage) postData.imageUri = selectedImage;
-   
-    createPostMutation.mutate(postData);
+    if (selectedImage) messageData.imageUri = selectedImage;
+    
+    sendMessageMutation.mutate({messageData,targetUserId});
   };
 
   return {
     content,
     setContent,
     selectedImage,
-    isCreating: createPostMutation.isPending,
+    isSending: sendMessageMutation.isPending,
     pickImageFromGallery: () => handleImagePicker(false),
     takePhoto: () => handleImagePicker(true),
     removeImage: () => setSelectedImage(null),
-    createPost,
+    sendMessage
+    // sendMessage(targetUserId),
   };
 };

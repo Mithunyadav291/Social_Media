@@ -2,9 +2,10 @@ import { useAuth } from "@clerk/clerk-expo";
 import axios, {AxiosInstance} from "axios"
 import { getBaseUrl } from "./apiBaseUrl";
 
-const API_BASE_URL="https://social-media-zeta-sandy.vercel.app/api"
+// const API_BASE_URL="https://social-media-zeta-sandy.vercel.app/api"
 // const API_BASE_URL = "http://localhost:3001/api";
-// const API_BASE_URL=getBaseUrl()
+const API_BASE_URL=getBaseUrl()
+// console.log(API_BASE_URL)
 
 
 
@@ -51,3 +52,23 @@ export const postApi={
 export const commentApi={
   creatComment:(api:AxiosInstance,postId:string,content:string)=>api.post(`/comments/post/${postId}`,{content})
 }
+
+export const messageApi = {
+  getMessages: (api: AxiosInstance, targetUserId: string) =>
+    api.get(`/message/${targetUserId}`),
+
+  sendMessage: (api: AxiosInstance, targetUserId: string, data:{content:string, image?:string}) =>
+    
+    api.post(`/message/send/${targetUserId}`, data, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
+
+  getChatUsers: (api: AxiosInstance) =>
+    api.get("/message/getChatUser"),
+
+  // deleteChatUser: (api: AxiosInstance, deleteChatUserId: string) =>
+  //   api.put(`/message/deleteChatUser/${deleteChatUserId}`),
+
+  // deleteMessage: (api: AxiosInstance, messageId: string) =>
+  //   api.delete(`/message/deleteMessage/${messageId}`),
+};

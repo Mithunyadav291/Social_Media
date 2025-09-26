@@ -68,7 +68,7 @@ export const followUser = asyncHandler(async (req, res) => {
 
   if (userId === targetUserId) {
     //but here userId is clerkId not _id of mongoose . so we must get its mongoose object _id
-     return res.status(400).json({ error: "You cannot follow yourself" });
+    return res.status(400).json({ error: "You cannot follow yourself" });
   }
   const currentUser = await User.findOne({ clerkId: userId });
   const targetUser = await User.findById(targetUserId);
@@ -113,6 +113,9 @@ export const followUser = asyncHandler(async (req, res) => {
 
 export const searchUsers = asyncHandler(async (req, res) => {
   const { q } = req.query;
+  const { userId } = getAuth(req);
+  const currentUser = await User.findOne({ clerkId: userId });
+  const currentUserId = currentUser ? currentUser._id : null;
 
   if (!q || q.trim() === "") {
     return res.status(400).json({ error: "Search query is required" });
@@ -129,6 +132,7 @@ export const searchUsers = asyncHandler(async (req, res) => {
 
   // 4️⃣ Search users
   const users = await User.find({
+    _id: { $ne: currentUserId }, // exclude current user
     $or: [
       { username: { $regex: regex } },
       { firstname: { $regex: regex } },

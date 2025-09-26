@@ -11,14 +11,15 @@ import upload from "../middleware/upload.middleware.js";
 
 const router = express.Router();
 
-router.get("/:targetUserId", protectRoute, getMessages);
+router.get("/getChatUser", protectRoute, getChattingUser);
 router.post(
   "/send/:targetUserId",
   protectRoute,
   upload.single("image"),
   sendMessages
 );
-router.get("/getChatUser", protectRoute, getChattingUser);
+
 router.put("/deleteChatUser/:deleteChatUserId", protectRoute, deleteWholeChat);
 router.delete("/deleteMessage/:messageId", protectRoute, deleteMessage);
+router.get("/:targetUserId", protectRoute, getMessages);
 export default router;

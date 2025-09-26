@@ -1,5 +1,12 @@
-import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
-import React from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  RefreshControl,
+} from "react-native";
+import React, { useState } from "react";
 import { useClerk } from "@clerk/clerk-expo";
 import { useAuth, useUser } from "@clerk/clerk-react";
 import { Redirect } from "expo-router";
@@ -10,12 +17,20 @@ import { useUserSync } from "@/hooks/useUserSync";
 import { Ionicons } from "@expo/vector-icons";
 import PostComposer from "@/components/PostComposer";
 import PostsList from "@/components/PostsList";
+import { usePosts } from "@/hooks/usePosts";
 
 const HomeScreen = () => {
+  const [isRefetching, setIsRefetching] = useState(false);
+  const { refetch: refetchPosts } = usePosts();
   // const { signOut } = useClerk();
   // const { isSignedIn, isLoaded, user } = useUser();
   // console.log(user);
   useUserSync(); //for sync user automatically when after signed .
+  const handlePullToRefresh = async () => {
+    setIsRefetching(true);
+    await refetchPosts();
+    setIsRefetching(false);
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -31,6 +46,13 @@ const HomeScreen = () => {
         showsVerticalScrollIndicator={false}
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 80 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={handlePullToRefresh}
+            tintColor={"#1DA1F2"}
+          />
+        }
       >
         <PostComposer />
         <PostsList />

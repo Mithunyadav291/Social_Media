@@ -14,10 +14,9 @@ export const getMessages = asyncHandler(async (req, res) => {
   if (!currentUser || !targetUser)
     return res.status(404).json({ error: "User not found" });
 
-  //    if (currentUser._id === targetUserId) {
-  //     //but here userId is clerkId not _id of mongoose . so we must get its mongoose object _id
-  //      return res.status(400).json({ error: "You cannot follow yourself" });
-  //   }
+  if (currentUser._id === targetUserId) {
+    return res.status(400).json({ error: "You cannot follow yourself" });
+  }
   const messages = await Message.find({
     $or: [
       { senderId: currentUser._id, receiverId: targetUserId },
@@ -32,6 +31,7 @@ export const getChattingUser = asyncHandler(async (req, res) => {
   const { userId } = getAuth(req);
 
   const currentUser = await User.findOne({ clerkId: userId });
+
   if (!currentUser) {
     return res.status(404).json({ error: "User not found" });
   }
@@ -71,6 +71,7 @@ export const deleteWholeChat = asyncHandler(async (req, res) => {
     .status(200)
     .json({ message: `Deleted chat with ${targetUser?.username}` });
 });
+
 export const deleteMessage = asyncHandler(async (req, res) => {
   const { userId } = getAuth(req);
   const { messageId } = req.params;
@@ -99,6 +100,7 @@ export const sendMessages = asyncHandler(async (req, res) => {
   const { targetUserId } = req.params;
   const { content } = req.body;
   const imageFile = req.file;
+  console.log("targetuserid", targetUserId);
 
   if (!content && !imageFile) {
     return res

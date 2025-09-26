@@ -7,23 +7,35 @@ import {
   ScrollView,
   Image,
   Modal,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState } from "react";
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { CONVERSATIONS, ConversationType } from "@/data/conversations";
 import { Feather } from "@expo/vector-icons";
+import { useChatUsers } from "@/hooks/useChatUsers";
+import { useSendMessage } from "@/hooks/useSendMessage";
+import MessageSection from "@/components/MessageSection";
+import axios from "axios";
 
 const MessageScreen = () => {
   const insets = useSafeAreaInsets();
   const [searchText, setSearchText] = useState("");
-  const [conversationsList, setConversationsList] = useState(CONVERSATIONS);
-  const [selectedConversation, setSelectedConversation] =
-    useState<ConversationType | null>(null);
+  const [searchResults, setSearchResults] = useState([]);
+  const [lastMessage, setLastMessage] = useState("");
+
+  const [selectedConversation, setSelectedConversation] = useState(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [newMessage, setNewMessage] = useState("");
+
+  // Chat Users
+  const {
+    chatUsers,
+    isLoading: usersLoading,
+    refetchChatUsers,
+    // deleteChatUser
+  } = useChatUsers();
 
   const deleteConversation = (conversationId: number) => {
     Alert.alert(
@@ -35,40 +47,41 @@ const MessageScreen = () => {
           text: "Delete",
           style: "destructive",
           onPress: () => {
-            setConversationsList((prev) =>
-              prev.filter((conv) => conv.id !== conversationId)
-            );
+            //deletechatuser
           },
         },
       ]
     );
   };
-  const openConversation = (conversation: ConversationType) => {
-    setSelectedConversation(conversation);
+  const openConversation = (chatUser) => {
+    setSelectedConversation(chatUser);
+
     setIsChatOpen(true);
   };
 
   const closeChatModal = () => {
     setIsChatOpen(false);
     setSelectedConversation(null);
-    setNewMessage("");
+    // setNewMessage("");
+    refetchChatUsers();
   };
-  const sendMessage = () => {
-    if (newMessage.trim() && selectedConversation) {
-      // update last message in conversation
-      setConversationsList((prev) =>
-        prev.map((conv) =>
-          conv.id === selectedConversation.id
-            ? { ...conv, lastMessage: newMessage, time: "now" }
-            : conv
-        )
-      );
-      setNewMessage("");
-      // Alert.alert(
-      //   "Message Sent!",
-      //   `Your message has been sent to ${selectedConversation.user.name}`
-      // );
+  const fetchUsers = async (query) => {
+    // setResults([]);
+    if (!query) {
+      setSearchResults([]);
+      return;
     }
+
+    try {
+      // const res = await axios.get(`${API_BASE_URL}/user/search?q=${query}`);
+      const res = await axios.get(
+        `https://social-media-zeta-sandy.vercel.app/api/user/search?q=${query}`
+      );
+      // const res = await axios.get(
+      //   `http://localhost:3001/api/user/search?q=${query}`
+      // );
+      setSearchResults(res.data.users);
+    } catch (err) {}
   };
 
   return (
@@ -90,8 +103,19 @@ const MessageScreen = () => {
             className="flex-1 ml-3 text-base outline-none"
             placeholderTextColor="#657786"
             value={searchText}
-            onChangeText={setSearchText}
+            onChangeText={(text) => {
+              setSearchText(text);
+              fetchUsers(text);
+            }}
           />
+          {searchText.length > 0 && (
+            <TouchableOpacity
+              onPress={() => setSearchText("")}
+              className="mr-2 p-1 rounded-full"
+            >
+              <Feather name="x" size={20} color="black" />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
@@ -101,46 +125,104 @@ const MessageScreen = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}
       >
-        {conversationsList.map((conversation) => (
-          <TouchableOpacity
-            key={conversation.id}
-            className="flex-row items-center p-4 border-b border-gray-50 active:bg-gray-50"
-            onPress={() => openConversation(conversation)}
-            onLongPress={() => deleteConversation(conversation.id)}
-          >
-            <Image
-              source={{ uri: conversation.user.avatar }}
-              className="size-12 rounded-full mr-3"
-            />
-
-            <View className="flex-1">
-              <View className="flex-row items-center justify-between mb-1">
-                <View className="flex-row items-center gap-1">
-                  <Text className="font-semibold text-gray-900">
-                    {conversation.user.name}
-                  </Text>
-                  {conversation.user.verified && (
-                    <Feather
-                      name="check-circle"
-                      size={16}
-                      color="#1DA1F2"
-                      className="ml-1"
-                    />
-                  )}
-                  <Text className="text-gray-500 text-sm ml-1">
-                    @{conversation.user.username}
-                  </Text>
-                </View>
-                <Text className="text-gray-500 text-sm">
-                  {conversation.time}
-                </Text>
-              </View>
-              <Text className="text-sm text-gray-500" numberOfLines={1}>
-                {conversation.lastMessage}
+        {/* search list */}
+        {searchText.length > 0 && (
+          <>
+            <View className="px-4 py-1">
+              <Text className="text-xl font-bold text-gray-900 mb-4">
+                Search Results
               </Text>
             </View>
-          </TouchableOpacity>
-        ))}
+            {searchResults.length > 0 ? (
+              <>
+                {searchResults.map((user) => (
+                  <TouchableOpacity
+                    key={user?._id}
+                    onPress={() => openConversation(user)}
+                    className="flex flex-row gap-4 items-center py-3 px-4 border-b border-gray-200 "
+                  >
+                    <Image
+                      source={{
+                        uri: user?.profilePicture
+                          ? user.profilePicture
+                          : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSYbP-248zDkKcJG_swsx0pK2Hhe8hwE0fHQ&s",
+                      }}
+                      resizeMode="contain"
+                      className="size-10 rounded-full"
+                    />
+                    <View>
+                      <Text className="font-bold text-gray-900 text-lg">
+                        {user?.firstname} {user?.lastname}
+                      </Text>
+                      <Text className="text-gray-500 text-sm">
+                        @{user?.username} {user?._id}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </>
+            ) : (
+              <View className="flex-1 items-center p-8">
+                <Text className="text-gray-500">No users found</Text>
+              </View>
+            )}
+          </>
+        )}
+
+        {/* conversation list */}
+        {!searchText && (
+          <>
+            {chatUsers ? (
+              <View>
+                {chatUsers.map((chatUser) => (
+                  <TouchableOpacity
+                    key={chatUser._id}
+                    className="flex-row  items-center p-4 border-b border-gray-50 active:bg-gray-50"
+                    onPress={() => openConversation(chatUser)}
+                    onLongPress={() => deleteConversation(chatUser._id)}
+                  >
+                    <Image
+                      source={{ uri: chatUser.profilePicture }}
+                      className="size-12 rounded-full mr-3"
+                    />
+
+                    <View className="flex-1">
+                      <View className="flex-row items-center justify-between mb-1">
+                        <View className="flex-row items-center gap-1">
+                          <Text className="font-semibold text-gray-900">
+                            {chatUser.firstname} {chatUser.lastname}
+                          </Text>
+
+                          <Feather
+                            name="check-circle"
+                            size={16}
+                            color="#1DA1F2"
+                            className="ml-1"
+                          />
+
+                          <Text className="text-gray-500 text-sm ml-1">
+                            @{chatUser.username}
+                          </Text>
+                        </View>
+                        <Text className="text-gray-500 text-sm">
+                          2h
+                          {/* last message time */}
+                        </Text>
+                      </View>
+                      <Text className="text-sm text-gray-500" numberOfLines={1}>
+                        last message {lastMessage?.content}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ) : (
+              <View className="p-8  items-center ">
+                <Text className="text-gray-500">No conversations yet</Text>
+              </View>
+            )}
+          </>
+        )}
       </ScrollView>
 
       {/* Quick Actions */}
@@ -166,92 +248,32 @@ const MessageScreen = () => {
                 <Feather name="arrow-left" size={24} color="#1DA1F2" />
               </TouchableOpacity>
               <Image
-                source={{ uri: selectedConversation.user.avatar }}
+                source={{ uri: selectedConversation.profilePicture }}
                 className="size-10 rounded-full mr-3"
               />
               <View className="flex-1">
                 <View className="flex-row items-center">
                   <Text className="font-semibold text-gray-900 mr-1">
-                    {selectedConversation.user.name}
+                    {selectedConversation.firstname}{" "}
+                    {selectedConversation.lastname}
                   </Text>
-                  {selectedConversation.user.verified && (
-                    <Feather name="check-circle" size={16} color="#1DA1F2" />
-                  )}
+
+                  <Feather name="check-circle" size={16} color="#1DA1F2" />
                 </View>
                 <Text className="text-gray-500 text-sm">
-                  @{selectedConversation.user.username}
+                  @{selectedConversation.username}
                 </Text>
               </View>
             </View>
 
             {/* Chat Messages Area */}
-            <ScrollView className="flex-1 px-4 py-4">
-              <View className="mb-4">
-                <Text className="text-center text-gray-400 text-sm mb-4">
-                  This is the beginning of your conversation with{" "}
-                  {selectedConversation.user.name}
-                </Text>
-
-                {/* Conversation Messages */}
-                {selectedConversation.messages.map((message) => (
-                  <View
-                    key={message.id}
-                    className={`flex-row mb-3 ${message.fromUser ? "justify-end" : ""}`}
-                  >
-                    {!message.fromUser && (
-                      <Image
-                        source={{ uri: selectedConversation.user.avatar }}
-                        className="size-8 rounded-full mr-2"
-                      />
-                    )}
-                    <View
-                      className={`flex-1 ${message.fromUser ? "items-end" : ""}`}
-                    >
-                      <View
-                        className={`rounded-2xl px-4 py-3 max-w-xs ${
-                          message.fromUser ? "bg-blue-500" : "bg-gray-100"
-                        }`}
-                      >
-                        <Text
-                          className={
-                            message.fromUser ? "text-white" : "text-gray-900"
-                          }
-                        >
-                          {message.text}
-                        </Text>
-                      </View>
-                      <Text className="text-xs text-gray-400 mt-1">
-                        {message.time}
-                      </Text>
-                    </View>
-                  </View>
-                ))}
-              </View>
-            </ScrollView>
-
-            {/* Message Input */}
-            <View className="flex-row items-center px-4 py-3 border-t border-gray-100">
-              <View className="flex-1 flex-row items-center bg-gray-100 rounded-full px-4 py-3 mr-3">
-                <TextInput
-                  className="flex-1 text-base outline-none"
-                  placeholder="Start a message..."
-                  placeholderTextColor="#657786"
-                  value={newMessage}
-                  onChangeText={setNewMessage}
-                  multiline
-                  numberOfLines={2}
-                />
-              </View>
-              <TouchableOpacity
-                onPress={sendMessage}
-                className={`size-10 rounded-full items-center justify-center ${
-                  newMessage.trim() ? "bg-blue-500" : "bg-gray-300"
-                }`}
-                disabled={!newMessage.trim()}
-              >
-                <Feather name="send" size={20} color="white" />
-              </TouchableOpacity>
-            </View>
+            <MessageSection
+              targetUser={selectedConversation}
+              onLastMessage={(msg) => {
+                // console.log("Recent message:", msg.content);
+                setLastMessage(msg);
+              }}
+            />
           </SafeAreaView>
         )}
       </Modal>

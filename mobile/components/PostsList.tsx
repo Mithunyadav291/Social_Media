@@ -16,7 +16,6 @@ const PostsList = () => {
     deletePost,
     checkIsLiked,
   } = usePosts();
-  console.log({ posts });
 
   if (isLoading) {
     return (
