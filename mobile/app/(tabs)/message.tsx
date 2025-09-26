@@ -19,6 +19,7 @@ import { useChatUsers } from "@/hooks/useChatUsers";
 import { useSendMessage } from "@/hooks/useSendMessage";
 import MessageSection from "@/components/MessageSection";
 import axios from "axios";
+import { useSearchUsers } from "@/hooks/useSearchUsers";
 
 const MessageScreen = () => {
   const insets = useSafeAreaInsets();
@@ -28,6 +29,9 @@ const MessageScreen = () => {
 
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
+
+  //search users for message
+  const { searchUsers } = useSearchUsers();
 
   // Chat Users
   const {
@@ -65,23 +69,21 @@ const MessageScreen = () => {
     // setNewMessage("");
     refetchChatUsers();
   };
+
   const fetchUsers = async (query) => {
-    // setResults([]);
     if (!query) {
       setSearchResults([]);
       return;
     }
 
     try {
-      // const res = await axios.get(`${API_BASE_URL}/user/search?q=${query}`);
-      const res = await axios.get(
-        `https://social-media-zeta-sandy.vercel.app/api/user/search?q=${query}`
-      );
-      // const res = await axios.get(
-      //   `http://localhost:3001/api/user/search?q=${query}`
-      // );
-      setSearchResults(res.data.users);
-    } catch (err) {}
+      const res = await searchUsers(query); // await async mutate
+      // setResults(res.data); // direct API data
+      setSearchResults(res.users || []);
+    } catch (err) {
+      console.log("Search error:", err);
+      setSearchResults([]);
+    }
   };
 
   return (

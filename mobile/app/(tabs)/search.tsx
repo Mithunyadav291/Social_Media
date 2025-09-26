@@ -90,6 +90,7 @@ import { Feather } from "@expo/vector-icons";
 import axios from "axios";
 import { useUser } from "@clerk/clerk-expo";
 import { getBaseUrl } from "@/utils/apiBaseUrl";
+import { useSearchUsers } from "@/hooks/useSearchUsers";
 
 const SearchScreen = () => {
   const TRENDING_TOPICS = [
@@ -103,27 +104,21 @@ const SearchScreen = () => {
   const [input, setInput] = useState("");
   const [results, setResults] = useState([]);
 
-  // const API_BASE_URL = getBaseUrl();
+  const { searchUsers } = useSearchUsers();
 
   const fetchUsers = async (query) => {
-    // setResults([]);
     if (!query) {
       setResults([]);
       return;
     }
 
     try {
-      // const res = await axios.get(`${API_BASE_URL}/user/search?q=${query}`);
-      const res = await axios.get(
-        `https://social-media-zeta-sandy.vercel.app/api/user/search?q=${query}`
-      );
-      // const res = await axios.get(
-      //   `http://localhost:3001/api/user/search?q=${query}`
-      // );
-      setResults(res.data.users);
+      const res = await searchUsers(query); // await async mutate
+      // setResults(res.data); // direct API data
+      setResults(res.users || []);
     } catch (err) {
-      // console.log("Search error:", err);
-      // console.log("Search error:", JSON.stringify(err, null, 2));
+      console.log("Search error:", err);
+      setResults([]);
     }
   };
 
