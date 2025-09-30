@@ -9,8 +9,8 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { Post, User } from "@/types";
-import { formatDate } from "@/utils/formatters";
-import { Feather } from "@expo/vector-icons";
+import { formatDate, formatNumber } from "@/utils/formatters";
+import { AntDesign, Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as MediaLibrary from "expo-media-library";
 import * as FileSystem from "expo-file-system/legacy";
@@ -19,6 +19,7 @@ interface PostCardProps {
   post: Post;
   onLike: (postId: string) => void;
   onDelete: (postId: string) => void;
+  onComment: (post: Post) => void;
   isLiked?: boolean;
   currentUser: User;
 }
@@ -29,6 +30,7 @@ const PostCard = ({
   onDelete,
   currentUser,
   isLiked,
+  onComment,
 }: PostCardProps) => {
   const isOwnPost = post.user._id === currentUser._id;
   const [isImageVisible, setIsImageVisible] = useState(false);
@@ -114,7 +116,7 @@ const PostCard = ({
               <TouchableOpacity onPress={() => setIsImageVisible(true)}>
                 <Image
                   source={{ uri: post.image }}
-                  className="w-full h-48 rounded-2xl mb-3"
+                  className="w-full h-48 border-2 border-gray-200 rounded-2xl mb-3"
                   resizeMode="cover"
                 />
               </TouchableOpacity>
@@ -127,7 +129,7 @@ const PostCard = ({
                 presentationStyle="pageSheet"
                 onRequestClose={() => setIsImageVisible(false)}
               >
-                <SafeAreaView className="flex-1 ">
+                <SafeAreaView className="flex-1  ">
                   {/* Close (X) button */}
                   <TouchableOpacity
                     onPress={() => setIsImageVisible(false)}
@@ -144,13 +146,14 @@ const PostCard = ({
 
                   {/* Fullscreen image */}
                   <TouchableOpacity
-                    className="flex-1"
+                    className="flex-1 justify-center items-center "
                     onLongPress={() => confirmDownload()}
                     delayLongPress={400}
                   >
                     <Image
                       source={{ uri: post.image }}
-                      style={{ width: "100%", height: "100%" }}
+                      style={{ width: "90%", height: "50%" }}
+                      className="border-2  rounded-xl border-gray-100"
                       resizeMode="contain"
                     />
                   </TouchableOpacity>
@@ -158,6 +161,46 @@ const PostCard = ({
               </Modal>
             </>
           )}
+
+          <View className="flex-row justify-between max-w-xs pt-1 px-1">
+            <TouchableOpacity
+              className="flex-row items-center"
+              onPress={() => onComment(post)}
+            >
+              <Feather name="message-circle" size={18} color="#657786" />
+              <Text className="text-gray-500 text-sm ml-2">
+                {formatNumber(post.comments?.length || 0)}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="flex-row items-center"
+              onPress={() => {}}
+            >
+              <Feather name="repeat" size={18} color="#657786" />
+              <Text className="text-gray-500 text-sm ml-2">0</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="flex-row items-center"
+              onPress={() => onLike(post._id)}
+            >
+              {isLiked ? (
+                <AntDesign name="heart" size={18} color="#E0245E" />
+              ) : (
+                <Feather name="heart" size={18} color="#657786" />
+              )}
+              <Text
+                className={`${isLiked ? "text-red-500" : "text-gray-500"} text-sm ml-2`}
+              >
+                {formatNumber(post.likes?.length || 0)}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="flex-row items-center"
+              onPress={() => {}}
+            >
+              <Feather name="share" size={18} color="#657786" />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </View>

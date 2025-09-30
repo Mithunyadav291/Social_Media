@@ -18,8 +18,15 @@ export const usePosts=()=>{
     })
 
     const likePostMutation=useMutation({
-        mutationFn:(postId:string)=>postApi.likePost(api,postId),
-        onSuccess:()=>queryClient.invalidateQueries({queryKey:['posts']})
+        mutationFn:(postId:string)=>{
+          return  postApi.likePost(api,postId)},
+        onSuccess:()=>{
+            queryClient.invalidateQueries({queryKey:['posts']})
+        },
+
+        onError:(error)=>{
+            // console.log("error liking post:",error)
+        }
     })
     const deletePostMutation=useMutation({
         mutationFn:(postId:string)=>postApi.deletePost(api,postId),

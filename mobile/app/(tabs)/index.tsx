@@ -14,7 +14,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import SignOutButton from "@/components/SignOutButton";
 import { useUserSync } from "@/hooks/useUserSync";
-import { Ionicons } from "@expo/vector-icons";
+import {
+  FontAwesome5,
+  Ionicons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import PostComposer from "@/components/PostComposer";
 import PostsList from "@/components/PostsList";
 import { usePosts } from "@/hooks/usePosts";
@@ -36,8 +40,15 @@ const HomeScreen = () => {
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
       <View className="flex-row justify-between items-center px-4 py-3 border-b border-gray-100">
-        <Ionicons name="logo-twitter" size={24} color="#1DA1F2" />
-        <Text className="text-xl font-bold text-gray-900">Home</Text>
+        {/* <Ionicons name="logo-twitter" size={24} color="#1DA1F2" /> */}
+        <Text className="text-blue-800 font-bold text-2xl italic">funTalk</Text>
+        {/* <Image
+          source={require("../../assets/images/HomeLogo.png")}
+          resizeMode="cover"
+          className="w-14 h-14"
+        /> */}
+
+        {/* <Text className="text-xl font-bold text-gray-900">Home</Text> */}
         <SignOutButton />
       </View>
 

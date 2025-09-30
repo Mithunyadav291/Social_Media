@@ -61,8 +61,6 @@ export const createPost = asyncHandler(async (req, res) => {
   const { userId } = getAuth(req);
   const { content } = req.body;
   const imageFile = req.file;
-  console.log("contennt:", content);
-  console.log("imageUrl:", imageFile);
 
   if (!content && !imageFile) {
     return res
@@ -114,7 +112,7 @@ export const likePost = asyncHandler(async (req, res) => {
 
   if (!post || !user)
     return res.status(404).json({ error: "User or Post not found" });
-  const isLiked = post.likes.inludes(user._id);
+  const isLiked = post.likes.includes(user._id);
 
   if (isLiked) {
     //unlike

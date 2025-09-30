@@ -9,7 +9,7 @@ const SignOutButton = () => {
   const { signOut } = useClerk();
 
   return (
-    <TouchableOpacity onPress={signOut}>
+    <TouchableOpacity onPress={handleSignOut}>
       <Feather name="log-out" size={24} color={"#E0245E"} />
     </TouchableOpacity>
   );
