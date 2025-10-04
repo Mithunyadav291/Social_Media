@@ -3,8 +3,8 @@ import axios, {AxiosInstance} from "axios"
 import { getBaseUrl } from "./apiBaseUrl";
 
 // const API_BASE_URL="https://social-media-zeta-sandy.vercel.app/api"
-const API_BASE_URL = "http://localhost:3001/api";
-// const API_BASE_URL=getBaseUrl()
+// const API_BASE_URL = "http://localhost:3001/api";
+const API_BASE_URL=getBaseUrl()
 // console.log(API_BASE_URL)
 
 
@@ -51,6 +51,10 @@ export const postApi={
 
 export const commentApi={
   creatComment:(api:AxiosInstance,postId:string,content:string)=>api.post(`/comments/post/${postId}`,{content})
+}
+
+export const notificationsApi={
+  getNotifications:(api:AxiosInstance)=>api.get(`/notifications`)
 }
 
 export const messageApi = {

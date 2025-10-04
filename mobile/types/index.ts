@@ -27,8 +27,8 @@ export interface Notification {
   _id: string;
   from: {
     username: string;
-    firstName: string;
-    lastName: string;
+    firstname: string;
+    lastname: string;
     profilePicture?: string;
   };
   to: string;
