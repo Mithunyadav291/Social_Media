@@ -4,8 +4,9 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -17,6 +18,7 @@ import { Notification } from "@/types";
 
 const NotificationsScreen = () => {
   const insets = useSafeAreaInsets();
+  // const [isRefetching, setIsRefetching] = useState(false);
 
   const {
     notifications,
@@ -54,8 +56,15 @@ const NotificationsScreen = () => {
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}
+        contentContainerStyle={{ paddingBottom: 20 + insets.bottom }}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={refetch}
+            tintColor={"#1DA1F2"}
+          />
+        }
       >
         {isLoading ? (
           <View className="flex-1 items-center justify-center p-8">

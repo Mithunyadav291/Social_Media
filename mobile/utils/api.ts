@@ -2,9 +2,9 @@ import { useAuth } from "@clerk/clerk-expo";
 import axios, {AxiosInstance} from "axios"
 import { getBaseUrl } from "./apiBaseUrl";
 
-// const API_BASE_URL="https://social-media-zeta-sandy.vercel.app/api"
+const API_BASE_URL="https://social-media-zeta-sandy.vercel.app/api"
 // const API_BASE_URL = "http://localhost:3001/api";
-const API_BASE_URL=getBaseUrl()
+// const API_BASE_URL=getBaseUrl()
 // console.log(API_BASE_URL)
 
 
