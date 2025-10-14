@@ -10,6 +10,7 @@ import React from "react";
 import { useCreatPost } from "@/hooks/useCreatePost";
 import { useUser } from "@clerk/clerk-expo";
 import { Feather } from "@expo/vector-icons";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const PostComposer = () => {
   const {
@@ -22,13 +23,14 @@ const PostComposer = () => {
     removeImage,
     createPost,
   } = useCreatPost();
-  const { user } = useUser();
+  const { currentUser } = useCurrentUser();
+  const { user } = useUser;
 
   return (
     <View className="border-b border-gray-100 p-4 bg-white">
       <View className="flex-row">
         <Image
-          source={{ uri: user?.imageUrl }}
+          source={{ uri: currentUser?.profilePicture || user?.imageUrl }}
           className="w-12 h-12 rounded-full mr-3"
         />
         <View className="flex-1 justify-center">
